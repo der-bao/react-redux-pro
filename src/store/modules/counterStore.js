@@ -13,17 +13,20 @@ const counterStore = createSlice({
         },
         decrement(state){
             state.count--
+        },
+        addToNum(state, action){
+            state.count = action.payload
         }
     }
 })
 
 // 解构出来actionCreater函数
-const {increment, decrement} = counterStore.actions
+const {increment, decrement,addToNum} = counterStore.actions
 // 导出reducer函数
 const reducer = counterStore.reducer
 
 // 以按需导出的方式导出actionCreater函数
-export {increment, decrement}
+export {increment, decrement, addToNum}
 // 以默认导出的方式导出reducer函数
 export default reducer
 
