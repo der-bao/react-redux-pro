@@ -5,8 +5,11 @@ import { fetchChannels } from "./store/modules/channelStore";
 import { use, useEffect } from "react";
 
 function App() {
+  // 获取 Redux 中的状态（counter 是 store 中注册的 key）
   const {count} = useSelector((state) => state.counter)
   const {channelList} = useSelector((state) => state.channel)
+  
+   // 获取 dispatch 函数
   const dispatch = useDispatch()
   // 使用useEffect触发异步请求执行
   useEffect(() =>{

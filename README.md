@@ -1,70 +1,68 @@
-# Getting Started with Create React App
+`npm install`安装环境
+`npm start`启动运行
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+# Redux
 
-In the project directory, you can run:
+![Redux工作原理](src/image/redux工作原理.png)
 
-### `npm start`
+## 核心步骤：
+以创建计数器为例
+### （1）创建Redux Store（全局仓库）
+在 src/store/index.js 文件中创建 Store（RTK 提供 configureStore 简化创建）
+```
+// src/store/index.js
+import { configureStore } from '@reduxjs/toolkit';
+// 后续会创建 counterReducer，先引入占位
+import counterReducer from './counterSlice';
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+// 配置并创建 Store（RTK 内置了中间件、devTools 等）
+export const store = configureStore({
+  reducer: {
+    // 注册 reducer，key 是状态名，value 是对应的 reducer
+    counter: counterReducer,
+  },
+});
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+// 导出类型（可选，TypeScript 用）
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
+```
+### （2）创建切片
+采用RTK的createSlice方法，把相关的状态，修改逻辑封装在一起。
+```
+import {createSlice} from '@reduxjs/toolkit'
 
-### `npm test`
+const counterStore = createSlice({
+    // 切片名
+    name: 'counter',
+    // 初始化状态
+    initialState:{
+        count: 0
+    },
+    // 修改状态的方法 同步方法 状态支持直接修改
+    reducers:{
+        increment(state){
+            state.count++
+        },
+        decrement(state){
+            state.count--
+        }
+    }
+})
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+// 解构出来actionCreater函数
+const {increment, decrement} = counterStore.actions
+// 定义reducer函数
+const reducer = counterStore.reducer
 
-### `npm run build`
+// 以按需导出的方式导出actionCreater函数
+export {increment, decrement}
+// 以默认导出的方式导出reducer函数
+export default reducer
+```
+### （3）全局注入
+在 React 根组件（src/index.js）中用 Provider 把 Store 注入整个应用，让所有组件都能访问
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### （4）组件中使用 Redux 状态和 Action
+创建 src/components/Counter.js 组件，通过 useSelector 获取状态、useDispatch 触发 Action

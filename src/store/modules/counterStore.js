@@ -1,6 +1,7 @@
 import {createSlice} from '@reduxjs/toolkit'
 
 const counterStore = createSlice({
+    // 切片名/状态名
     name: 'counter',
     // 初始化状态
     initialState:{
